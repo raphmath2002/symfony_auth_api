@@ -1,0 +1,1 @@
+Ce qu'on recoit par nos objets UseCase, définit les paramètres d'entrées. Pas au sens "request HTTP" --> paramètres de l'action

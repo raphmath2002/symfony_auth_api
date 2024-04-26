@@ -1,0 +1,1 @@
+Ce qui sera renvoyé par notre UseCase, contient le statut et les divers éléments retournés

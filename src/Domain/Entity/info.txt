@@ -1,0 +1,1 @@
+Regroupe l'ensemble des entités métier (pas dans le sens ORM --> METIER)
