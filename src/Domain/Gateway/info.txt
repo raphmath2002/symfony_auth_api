@@ -1,1 +1,0 @@
-Regroupe les contrats d'interface, qui vont permettre de (get / interact) avec la donnée, et différents autres services.

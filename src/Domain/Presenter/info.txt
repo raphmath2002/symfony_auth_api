@@ -1,1 +1,0 @@
-Interface de rendu de la donnée, en fonction du type d'appli (Web, Api, etc...)
