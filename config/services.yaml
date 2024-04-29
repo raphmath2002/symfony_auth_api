@@ -22,6 +22,9 @@ services:
         exclude:
             - '../src/Domain/Entity/'
 
+    DataFixtures\:
+        resource: '../src/Infrastructure/Symfony/DataFixtures/'
+
     Infrastructure\:
         resource: '../src/Infrastructure/'
         exclude:
