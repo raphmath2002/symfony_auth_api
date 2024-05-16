@@ -11,6 +11,7 @@ class GenericResponse
     public const HTTP_UNAUTHORIZED  = 401;
     public const HTTP_EXCEPTION     = 500;
     public const HTTP_UNPROCESSABLE = 422;
+    public const HTTP_LOCKED        = 423;
 
     public ?int $statusCode = null;
 

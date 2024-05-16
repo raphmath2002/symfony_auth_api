@@ -12,9 +12,19 @@ class AuthServiceImpl implements AuthServiceInterface
 {
 
     public function __construct(
+        // Dep inject
         protected UserRepositoryInterface $userRepository,
         protected AuthRepositoryInterface $authRepository,
-        protected string $appSecret
+
+        // From yaml config
+        protected string $appSecret,
+
+        // Pure
+        protected int $lockExpirationDuration = (60 * 30), // 30 minutes lock
+
+        // 4 login fail within 5 minutes --> lock
+        protected int $allowedFailAttemptNb = 4,
+        protected int $failAttemptRangeInMinute = 5
     ) {
     }
 
@@ -44,6 +54,11 @@ class AuthServiceImpl implements AuthServiceInterface
                 return $response;
             }
 
+            if($this->isUserLocked($user->id)) {
+                $response->userLocked();
+                return $response;
+            }
+
 
             if (password_verify($creds->password, $user->password)) {
                 $access_jwt = $this->generateJWT($user, "access");
@@ -54,11 +69,14 @@ class AuthServiceImpl implements AuthServiceInterface
 
                 $this->authRepository->newLoginAttemptFailed($user->id, $clientIp);
 
-                $needToBeLocked = $this->isUserNeedToBeLocked($user->id);
+                $needToBeLocked = $this->isUserNeedToBeLocked($user->id, $clientIp);
 
-                //$this->authRepository->lockUser($user->id);
+                if($needToBeLocked) {
 
+                    $expireAt = time() + $this->lockExpirationDuration;
 
+                    $this->authRepository->lockUser($user->id, $expireAt);
+                }
 
                 $response->loginError();
             };
@@ -103,22 +121,27 @@ class AuthServiceImpl implements AuthServiceInterface
 
     private function isUserLocked(int $userId): bool
     {
+        $lock = $this->authRepository->getUserLock($userId);
+
+        if(isset($lock[0])) return true;
+
+        return false;
     }
 
-    private function isUserNeedToBeLocked(int $userId): bool
+    private function isUserNeedToBeLocked(int $userId, ?string $clientIp): bool
     {
-        $lastThreeFailedLoginAttempts = $this->authRepository->getThreeLastLoginAttemptsFailed($userId);
+        $lastFailedLoginAttempts = $this->authRepository->getLastLoginAttemptsFailed($userId, $clientIp, $this->allowedFailAttemptNb);
 
-        if (count($lastThreeFailedLoginAttempts) == 3) {
-            $firstAttemptAt = $lastThreeFailedLoginAttempts[2]['created_at'];
-            $lastAttemptAt = $lastThreeFailedLoginAttempts[0]['created_at'];
+        if (count($lastFailedLoginAttempts) == $this->allowedFailAttemptNb) {
+            $firstAttemptAt = $lastFailedLoginAttempts[$this->allowedFailAttemptNb-1]['created_at'];
+            $lastAttemptAt = $lastFailedLoginAttempts[0]['created_at'];
 
             $firstAttemptAtTimestamp = strtotime($firstAttemptAt);
             $lastAttemptAtTimestamp = strtotime($lastAttemptAt);
 
             $failTimeRangeMinutes = ($lastAttemptAtTimestamp - $firstAttemptAtTimestamp) / 60;
 
-            if ($failTimeRangeMinutes > 5) {
+            if ($failTimeRangeMinutes < $this->failAttemptRangeInMinute) {
                 return true;
             }
         }
@@ -152,7 +175,7 @@ class AuthServiceImpl implements AuthServiceInterface
 
         return (object) [
             "token" => $jwt,
-            "expire_at" => new \DateTime(date('Y-m-d H:i:s', $exp), new \DateTimeZone('GMT+2'))
+            "expire_at" => new \DateTime(date('Y-m-d H:i:s', $exp), new \DateTimeZone('Europe/Paris'))
         ];
     }
 }

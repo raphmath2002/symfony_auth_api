@@ -23,6 +23,12 @@ class LoginResponse extends GenericResponse
         $this->statusCode = parent::HTTP_UNAUTHORIZED;
     }
 
+    public function userLocked()
+    {
+        $this->setMessage("Your account has been locked, please retry later");
+        $this->statusCode = parent::HTTP_LOCKED;
+    }
+
     public function logged($access, $refresh)
     {
         $this->statusCode = parent::HTTP_OK;
