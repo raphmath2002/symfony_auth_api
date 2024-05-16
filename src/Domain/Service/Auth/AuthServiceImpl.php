@@ -49,7 +49,7 @@ class AuthServiceImpl implements AuthServiceInterface
         try {
             $user = $this->userRepository->getUserByEmail($creds->email);
 
-            if (is_null($user)) {
+            if (is_null($user) || !$user->status) {
                 $response->userNotFound();
                 return $response;
             }

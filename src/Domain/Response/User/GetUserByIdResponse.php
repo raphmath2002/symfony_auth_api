@@ -13,7 +13,8 @@ class GetUserByIdResponse extends GenericResponse
                 "first_name" => $user->first_name,
                 "last_name" => $user->last_name,
                 "email" => $user->email,
-                "roles" => $user->getRoles()
+                "roles" => $user->getRoles(),
+                "status" => $user->status
             ]
         ]);
     }

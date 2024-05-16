@@ -104,6 +104,9 @@ class UserServiceImpl implements UserServiceInterface
 
         array_key_exists('roles', $updatedData) && $user->setRoles($updatedData['roles']);
 
+        array_key_exists('status', $updatedData) && $user->status = $updatedData['status'];
+
+
         try {
             $this->userRepository->updateUser($user);
             $response->userUpdated();

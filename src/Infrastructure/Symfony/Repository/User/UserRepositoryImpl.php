@@ -36,8 +36,8 @@ class UserRepositoryImpl extends ServiceEntityRepository implements UserReposito
         $connection = $this->em->getConnection();
 
         $sql = '
-            INSERT INTO users (first_name, last_name, email, password, roles)
-            VALUES (:first_name, :last_name, :email, :password, :roles)
+            INSERT INTO users (`first_name`, `last_name`, `email`, `password`, `roles`, `status`)
+            VALUES (:first_name, :last_name, :email, :password, :roles, :status)
         ';
 
         $result = $connection->executeQuery($sql, [
@@ -45,7 +45,8 @@ class UserRepositoryImpl extends ServiceEntityRepository implements UserReposito
             'last_name'  => $newUser->last_name,
             'email'      => $newUser->email,
             'password'   => $newUser->password,
-            'roles'   => json_encode($newUser->getRoles()),
+            'roles'      => json_encode($newUser->getRoles()),
+            'status'     => (int) $newUser->status
         ]);
 
         $inserted = $this->findOneBy(['email' => $newUser->email]);

@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
     `email` text NOT NULL,
     `password` varchar(255) NOT NULL,
     `roles` varchar(255),
+    `status` BOOLEAN NOT NULL DEFAULT 1,
     `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
     `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
     PRIMARY KEY (`id`)

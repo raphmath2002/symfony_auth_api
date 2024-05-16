@@ -34,6 +34,9 @@ class User implements UserInterface
     private array $roles = [];
 
     #[ORM\Column]
+    public bool $status = true;
+
+    #[ORM\Column]
     public ?\DateTimeImmutable $created_at = null;
 
     #[ORM\Column]
