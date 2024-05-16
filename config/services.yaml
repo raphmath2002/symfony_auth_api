@@ -4,15 +4,14 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-    uploads_directory: '%kernel.project_dir%/public/uploads'
+    app.secret: '%env(string:APP_SECRET)%'
 
 services:
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-        bind:
-            string $uploadDirectory: '%uploads_directory%'
+       
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -22,8 +21,8 @@ services:
         exclude:
             - '../src/Domain/Entity/'
 
-    DataFixtures\:
-        resource: '../src/Infrastructure/Symfony/DataFixtures/'
+    # DataFixtures\:
+    #     resource: '../src/Infrastructure/Symfony/DataFixtures/'
 
     Infrastructure\:
         resource: '../src/Infrastructure/'
@@ -33,6 +32,14 @@ services:
     Infrastructure\Symfony\Controller\:
         resource: '../src/Infrastructure/Symfony/Controller/'
         tags: ['controller.service_arguments']
+
+    Infrastructure\Symfony\Security\ApiKeyAuthenticator:
+        arguments:
+            $appSecret: '%app.secret%'
+
+    Domain\Service\Auth\AuthServiceImpl:
+        arguments:
+            $appSecret: '%app.secret%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

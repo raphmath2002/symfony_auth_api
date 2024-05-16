@@ -17,8 +17,8 @@
         "symfony/framework-bundle": "7.0.*",
         "symfony/mime": "7.0.*",
         "symfony/runtime": "7.0.*",
+        "symfony/security-bundle": "7.0.*",
         "symfony/serializer": "7.0.*",
-        "symfony/twig-bundle": "7.0.*",
         "symfony/validator": "7.0.*",
         "symfony/yaml": "7.0.*"
     },
@@ -32,14 +32,12 @@
     },
     "autoload": {
         "psr-4": {
-            
             "Domain\\": "src/Domain/",
             "Infrastructure\\": "src/Infrastructure/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "DataFixtures\\": "src/Infrastructure/Symfony/DataFixtures/",
             "Tests\\": "tests/"
         }
     },
@@ -76,6 +74,8 @@
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.5",
-        "symfony/maker-bundle": "^1.58"
+        "symfony/maker-bundle": "^1.58",
+        "symfony/stopwatch": "7.0.*",
+        "symfony/web-profiler-bundle": "7.0.*"
     }
 }
