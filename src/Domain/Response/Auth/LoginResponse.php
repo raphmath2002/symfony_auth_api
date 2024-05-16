@@ -29,6 +29,13 @@ class LoginResponse extends GenericResponse
         $this->statusCode = parent::HTTP_LOCKED;
     }
 
+    public function nonLoggedUser()
+    {
+        $this->setMessage("You are not authorized to access to this resource");
+        $this->statusCode = parent::HTTP_UNAUTHORIZED;
+
+    }
+
     public function logged($access, $refresh)
     {
         $this->statusCode = parent::HTTP_OK;

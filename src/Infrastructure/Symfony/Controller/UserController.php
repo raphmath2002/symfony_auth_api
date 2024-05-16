@@ -50,7 +50,7 @@ class UserController extends AbstractController
 
     #[Route("/api/account/{id}", name: 'api.account.update', methods: ['PUT'])]
     public function update(
-        int $id,
+        $id,
         Request $request,
         SerializerInterface $serializer,
         UpdateUserRequest $updateUserRequest,
