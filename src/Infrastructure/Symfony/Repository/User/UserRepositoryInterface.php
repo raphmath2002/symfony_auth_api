@@ -3,6 +3,7 @@
 namespace Infrastructure\Symfony\Repository\User;
 
 use Domain\Entity\User;
+use Domain\Interface\UserDto\Input\CreateUserInput;
 
 interface UserRepositoryInterface
 {

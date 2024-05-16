@@ -36,19 +36,22 @@ class ApiKeyAuthenticator extends AbstractAuthenticator
 
         $apiToken = trim(str_replace('Bearer', '', $apiToken));
 
-        if($apiToken === '') $this->notValidToken();
+        if ($apiToken === '') $this->notValidToken();
 
         [$header, $payload, $signatureFromUser] = explode(".", $apiToken);
 
-        if($payload["type"] != "access") $this->notValidToken();
+
 
         $signatureFromSystem = hash_hmac('sha256', "$header.$payload", $this->appSecret);
 
         if ($signatureFromSystem === $signatureFromUser) {
+
             $decodedPayload = base64_decode($payload);
 
             if (json_validate($decodedPayload)) {
                 $decodedPayload = json_decode($decodedPayload, true);
+
+                if ($decodedPayload["type"] != "access") $this->notValidToken();
 
                 if (time() < $decodedPayload['expire_at']) {
                     return new SelfValidatingPassport(new UserBadge($decodedPayload['user_email']));

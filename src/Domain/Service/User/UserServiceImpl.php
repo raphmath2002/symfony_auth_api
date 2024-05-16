@@ -2,11 +2,13 @@
 
 namespace Domain\Service\User;
 
-use Domain\Request\AddNewUserRequest;
+use Domain\Entity\User;
+use Domain\Interface\UserDto\Input\CreateUserInput;
 use Domain\Request\UpdateUserRequest;
 use Domain\Response\User\AddNewUserResponse;
 use Domain\Response\User\GetUserByIdResponse;
 use Domain\Response\User\UpdateUserResponse;
+use Infrastructure\Helper\ObjectHydrator;
 use Infrastructure\Symfony\Repository\User\UserRepositoryInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -18,13 +20,11 @@ class UserServiceImpl implements UserServiceInterface
         protected UserRepositoryInterface $userRepository
     ) {}
 
-    public function addNewUser(AddNewUserRequest $request): AddNewUserResponse
+    public function addNewUser(CreateUserInput $newUserDTO): AddNewUserResponse
     {
         $response = new AddNewUserResponse();
 
-        $newUser = $request->getNewUser();
-
-        $errors = $this->validator->validate($newUser);
+        $errors = $this->validator->validate($newUserDTO);
 
         if (count($errors) > 0) {
             $response->setValidationError();
@@ -37,6 +37,8 @@ class UserServiceImpl implements UserServiceInterface
             }
             return $response;
         }
+
+        $newUser = $newUserDTO->transform();
 
         try {
 

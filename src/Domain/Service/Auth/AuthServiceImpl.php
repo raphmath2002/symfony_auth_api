@@ -59,7 +59,6 @@ class AuthServiceImpl implements AuthServiceInterface
                 return $response;
             }
 
-
             if (password_verify($creds->password, $user->password)) {
                 $access_jwt = $this->generateJWT($user, "access");
                 $refresh_jwt = $this->generateJWT($user, "refresh");

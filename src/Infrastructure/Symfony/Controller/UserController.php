@@ -2,14 +2,16 @@
 
 namespace Infrastructure\Symfony\Controller;
 
-use Domain\Entity\User;
+use Domain\Interface\UserDto\Input\CreateUserInput;
 use Domain\Request\AddNewUserRequest;
 use Domain\Request\UpdateUserRequest;
 use Domain\Service\User\UserServiceInterface;
+use Infrastructure\Helper\ObjectHydrator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -17,18 +19,20 @@ use Symfony\Component\Serializer\SerializerInterface;
 class UserController extends AbstractController
 {
 
-    #[Route("/api/account", name: 'api.account.store', methods: ['POST'])]
+    #[Route("/api/account", name: 'api.account.store', methods: ['POST'], format: 'json')]
     public function store(
         Request $request,
         UserServiceInterface $userService,
-        SerializerInterface $serializer,
-        AddNewUserRequest $newUserRequest
+        SerializerInterface $serializer
     ): Response {
-        $deserializedUser = $serializer->deserialize($request->getContent(), User::class, 'json');
 
-        $newUserRequest->setNewUser($deserializedUser);
+        // Test du DTO pour la fonction de create
+        $createUserInput = ObjectHydrator::hydrate(
+            json_decode($request->getContent(), true),
+            new CreateUserInput()
+        );
 
-        $response = $userService->addNewUser($newUserRequest);
+        $response = $userService->addNewUser($createUserInput);
 
         $serializedResponse = $serializer->serialize($response, 'json', [AbstractObjectNormalizer::SKIP_NULL_VALUES => true]);
 

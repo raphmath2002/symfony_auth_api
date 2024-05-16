@@ -65,26 +65,6 @@ class User implements UserInterface
         }
     }
 
-    // VALIDATOR
-    public static function loadValidatorMetaData(ClassMetadata $metadata): void
-    {
-
-        $metadata->addConstraint(new UniqueEntity([
-            'fields' => 'email'
-        ]));
-
-        $metadata->addPropertyConstraint('first_name', new Assert\NotBlank());
-        $metadata->addPropertyConstraint('first_name', new Assert\Length(max: 2048));
-        
-        $metadata->addPropertyConstraint('last_name', new Assert\NotBlank());
-        $metadata->addPropertyConstraint('last_name', new Assert\Length(max: 2048));
-
-        $metadata->addPropertyConstraint('email', new Assert\NotBlank());
-
-        $metadata->addPropertyConstraint('password', new Assert\NotBlank());
-
-    }
-
     /**
      * The public representation of the user (e.g. a username, an email address, etc.)
      *

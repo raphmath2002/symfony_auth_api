@@ -6,7 +6,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Domain\Entity\User;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Domain\Interface\UserDto\Input\CreateUserInput;
 
 class UserRepositoryImpl extends ServiceEntityRepository implements UserRepositoryInterface
 {
