@@ -5,6 +5,7 @@ namespace Domain\Service\Auth;
 use Domain\Entity\User;
 use Domain\Request\LoginRequest;
 use Domain\Response\Auth\LoginResponse;
+use Domain\Response\GenericResponse;
 use Infrastructure\Symfony\Repository\Auth\AuthRepositoryInterface;
 use Infrastructure\Symfony\Repository\User\UserRepositoryInterface;
 
@@ -54,7 +55,7 @@ class AuthServiceImpl implements AuthServiceInterface
                 return $response;
             }
 
-            if($this->isUserLocked($user->id)) {
+            if ($this->isUserLocked($user->id)) {
                 $response->userLocked();
                 return $response;
             }
@@ -70,7 +71,7 @@ class AuthServiceImpl implements AuthServiceInterface
 
                 $needToBeLocked = $this->isUserNeedToBeLocked($user->id, $clientIp);
 
-                if($needToBeLocked) {
+                if ($needToBeLocked) {
 
                     $expireAt = time() + $this->lockExpirationDuration;
 
@@ -118,11 +119,48 @@ class AuthServiceImpl implements AuthServiceInterface
         return $response;
     }
 
+    public function validateToken(string $token): GenericResponse
+    {
+        $response = new GenericResponse();
+
+        try {
+            [$header, $payload, $signatureFromUser] = explode(".", $token);
+
+            $signatureFromSystem = hash_hmac('sha256', "$header.$payload", $this->appSecret);
+
+            if ($signatureFromSystem === $signatureFromUser) {
+
+                $decodedPayload = base64_decode($payload);
+
+                if (json_validate($decodedPayload)) {
+                    $decodedPayload = json_decode($decodedPayload, true);
+
+                    if ($decodedPayload["type"] === "access" || time() < $decodedPayload['expire_at']) {
+                        $response->setData([
+                            "auth" => [
+                                "accessToken" => $token,
+                                "accessTokenExpireAt" => new \DateTime(date('Y-m-d H:i:s', $decodedPayload['expire_at']), new \DateTimeZone('Europe/Paris'))
+                            ]
+                        ]);
+                        $response->fetchOk();
+
+                        return $response;
+                    }
+                }
+            }
+        } catch (\Throwable $th) {}
+
+        $response->notFound();
+        $response->setMessage("Token not found or invalid");
+
+        return $response;
+    }
+
     private function isUserLocked(int $userId): bool
     {
         $lock = $this->authRepository->getUserLock($userId);
 
-        if(isset($lock[0])) return true;
+        if (isset($lock[0])) return true;
 
         return false;
     }
@@ -132,7 +170,7 @@ class AuthServiceImpl implements AuthServiceInterface
         $lastFailedLoginAttempts = $this->authRepository->getLastLoginAttemptsFailed($userId, $clientIp, $this->allowedFailAttemptNb);
 
         if (count($lastFailedLoginAttempts) == $this->allowedFailAttemptNb) {
-            $firstAttemptAt = $lastFailedLoginAttempts[$this->allowedFailAttemptNb-1]['created_at'];
+            $firstAttemptAt = $lastFailedLoginAttempts[$this->allowedFailAttemptNb - 1]['created_at'];
             $lastAttemptAt = $lastFailedLoginAttempts[0]['created_at'];
 
             $firstAttemptAtTimestamp = strtotime($firstAttemptAt);
@@ -164,6 +202,8 @@ class AuthServiceImpl implements AuthServiceInterface
         $payload = base64_encode(json_encode([
             "type" => $type,
             "user_email" => $user->email,
+            "user_id" => $user->id,
+            "user_roles" => $user->getRoles(),
             "created_at" => $now,
             "expire_at" => $exp
         ]));

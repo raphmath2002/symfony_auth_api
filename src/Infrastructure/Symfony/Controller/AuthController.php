@@ -50,4 +50,17 @@ class AuthController extends AbstractController
 
         return new Response($serializedResponse, $response->statusCode, ['Content-Type' => "text/json"]);
     }
+
+    #[Route('/api/validate/{accessToken}', name: 'api.token.validate', methods: ['GET'])]
+    public function validateToken(
+        string $accessToken,
+        AuthServiceInterface $authService,
+        SerializerInterface $serializer
+    ) {
+        $response = $authService->validateToken($accessToken);
+
+        $serializedResponse = $serializer->serialize($response, 'json', [AbstractObjectNormalizer::SKIP_NULL_VALUES => true]);
+
+        return new Response($serializedResponse, $response->statusCode, ['Content-Type' => "text/json"]);
+    }
 }

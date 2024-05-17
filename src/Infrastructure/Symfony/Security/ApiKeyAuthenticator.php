@@ -40,8 +40,6 @@ class ApiKeyAuthenticator extends AbstractAuthenticator
 
         [$header, $payload, $signatureFromUser] = explode(".", $apiToken);
 
-
-
         $signatureFromSystem = hash_hmac('sha256', "$header.$payload", $this->appSecret);
 
         if ($signatureFromSystem === $signatureFromUser) {
